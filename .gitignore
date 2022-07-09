@@ -1,5 +1,6 @@
 .idea
 .DS_STORE
-vendor
-composer.phar
 .phpunit.result.cache
+vendor
+coverage
+composer.phar

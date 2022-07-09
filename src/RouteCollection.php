@@ -2,6 +2,7 @@
 
 namespace Ennodia;
 
+use Symfony\Component\HttpFoundation\Request;
 use function array_map;
 use function implode;
 use function sprintf;
@@ -9,7 +10,7 @@ use function sprintf;
 class RouteCollection implements Route
 {
     /** @param array<Route> $routes */
-    public function __construct(public array $routes)
+    public function __construct(public readonly array $routes)
     {
     }
 
@@ -30,7 +31,7 @@ class RouteCollection implements Route
 
     public static function resource(string $pattern, string $controller): RouteCollection
     {
-        return static::make(['GET', 'PATCH', 'PUT', 'POST', 'DELETE'], $pattern, $controller);
+        return static::make([Request::METHOD_GET, Request::METHOD_PATCH, Request::METHOD_PUT, Request::METHOD_POST, Request::METHOD_DELETE], $pattern, $controller);
     }
 
     public function match(string $method, string $urlPath): ?ResolvedRoute

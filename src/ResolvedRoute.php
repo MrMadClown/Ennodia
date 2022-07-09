@@ -4,7 +4,7 @@ namespace Ennodia;
 
 class ResolvedRoute
 {
-    public function __construct(public string $controller, public array $args)
+    public function __construct(public readonly string $controller, public readonly array $args)
     {
     }
 }

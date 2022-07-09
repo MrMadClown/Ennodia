@@ -13,9 +13,9 @@ use function strcasecmp;
 class SingleRoute implements Route
 {
     public function __construct(
-        public string  $pattern,
-        public string  $controller,
-        public ?string $method = null
+        public readonly string  $pattern,
+        public readonly string  $controller,
+        public readonly ?string $method = null
     )
     {
     }
@@ -32,7 +32,7 @@ class SingleRoute implements Route
         return null;
     }
 
-    public static function ANY(string $pattern, string $controller): Route
+    public static function any(string $pattern, string $controller): Route
     {
         return new static($pattern, $controller);
     }

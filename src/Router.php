@@ -17,8 +17,8 @@ class Router
      * @param array<mixed> $config
      */
     public function __construct(
-        private RouteCollection $routes,
-        private array $config = [],
+        private readonly RouteCollection $routes,
+        private readonly array  $config = [],
     )
     {
     }
