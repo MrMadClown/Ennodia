@@ -3,11 +3,8 @@
 namespace Ennodia;
 
 use function array_filter;
-use function htmlentities;
 use function is_numeric;
-use function mb_strtoupper;
 use function preg_match;
-use function sprintf;
 use function strcasecmp;
 
 class SingleRoute implements Route
@@ -34,68 +31,56 @@ class SingleRoute implements Route
 
     public static function any(string $pattern, string $controller): Route
     {
-        return new static($pattern, $controller);
+        return new SingleRoute($pattern, $controller);
     }
 
     public static function get(string $pattern, string $controller): Route
     {
-        return new static($pattern, $controller, __FUNCTION__);
+        return new SingleRoute($pattern, $controller, __FUNCTION__);
     }
 
     public static function head(string $pattern, string $controller): Route
     {
-        return new static($pattern, $controller, __FUNCTION__);
+        return new SingleRoute($pattern, $controller, __FUNCTION__);
     }
 
     public static function post(string $pattern, string $controller): Route
     {
-        return new static($pattern, $controller, __FUNCTION__);
+        return new SingleRoute($pattern, $controller, __FUNCTION__);
     }
 
     public static function put(string $pattern, string $controller): Route
     {
-        return new static($pattern, $controller, __FUNCTION__);
+        return new SingleRoute($pattern, $controller, __FUNCTION__);
     }
 
     public static function delete(string $pattern, string $controller): Route
     {
-        return new static($pattern, $controller, __FUNCTION__);
+        return new SingleRoute($pattern, $controller, __FUNCTION__);
     }
 
     public static function connect(string $pattern, string $controller): Route
     {
-        return new static($pattern, $controller, __FUNCTION__);
+        return new SingleRoute($pattern, $controller, __FUNCTION__);
     }
 
     public static function options(string $pattern, string $controller): Route
     {
-        return new static($pattern, $controller, __FUNCTION__);
+        return new SingleRoute($pattern, $controller, __FUNCTION__);
     }
 
     public static function patch(string $pattern, string $controller): Route
     {
-        return new static($pattern, $controller, __FUNCTION__);
+        return new SingleRoute($pattern, $controller, __FUNCTION__);
     }
 
     public static function purge(string $pattern, string $controller): Route
     {
-        return new static($pattern, $controller, __FUNCTION__);
+        return new SingleRoute($pattern, $controller, __FUNCTION__);
     }
 
     public static function trace(string $pattern, string $controller): Route
     {
-        return new static($pattern, $controller, __FUNCTION__);
-    }
-
-    public function __toString(): string
-    {
-        return htmlentities(
-            sprintf(
-                "%s\t%s\t%s",
-                mb_strtoupper($this->method ?? 'ANY'),
-                $this->pattern,
-                $this->controller
-            )
-        );
+        return new SingleRoute($pattern, $controller, __FUNCTION__);
     }
 }

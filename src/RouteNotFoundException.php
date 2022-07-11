@@ -7,9 +7,9 @@ use function sprintf;
 
 class RouteNotFoundException extends \RuntimeException
 {
-    public static function make(string $method, string $urlPath): static
+    public static function make(string $method, string $urlPath): RouteNotFoundException
     {
-        return new static(
+        return new RouteNotFoundException(
             sprintf(
                 'No Route is defined for [%s] %s',
                 mb_strtoupper($method),

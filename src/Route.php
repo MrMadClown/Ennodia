@@ -2,7 +2,7 @@
 
 namespace Ennodia;
 
-interface Route extends \Stringable
+interface Route
 {
     public function match(string $method, string $urlPath): ?ResolvedRoute;
 }

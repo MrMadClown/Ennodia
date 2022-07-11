@@ -12,13 +12,11 @@ use function substr;
 
 class Router
 {
-    /**
-     * @param RouteCollection $routes
-     * @param array<mixed> $config
-     */
+    /** @param array<string, mixed> $config */
     public function __construct(
+        private readonly \Closure        $controllerFactory,
         private readonly RouteCollection $routes,
-        private readonly array  $config = [],
+        private readonly array           $config = [],
     )
     {
     }
@@ -49,11 +47,18 @@ class Router
         return $urlPath;
     }
 
+    /** @param array<string, mixed> $urlParams */
     private function callController(string $controller, Request $request, array $urlParams): Response
     {
         $method = strtolower($request->getMethod());
-        return method_exists($controller, $method)
-            ? call_user_func_array([new $controller($request), $method], $urlParams)
-            : call_user_func_array(new $controller($request), $urlParams);
+        $controllerInstance = $this->makeController($controller, $request);
+        return method_exists($controllerInstance, $method)
+            ? call_user_func_array([$controllerInstance, $method], $urlParams)
+            : call_user_func_array($controllerInstance, $urlParams);
+    }
+
+    private function makeController(string $controller, Request $request): mixed
+    {
+        return ($this->controllerFactory)($controller, [$request]);
     }
 }
