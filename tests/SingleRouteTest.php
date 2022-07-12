@@ -27,14 +27,14 @@ class SingleRouteTest extends TestCase
     public function testRouteCreation(string $method, ?string $expected): void
     {
         /** @var SingleRoute $route */
-        $route = SingleRoute::$method('/^index$/', 'App\Http\Controllers\IndexController');
+        $route = SingleRoute::$method('#^index$#', 'App\Http\Controllers\IndexController');
 
         static::assertEquals($expected, $route->method);
     }
 
     public function testSingleRouteMatch(): void
     {
-        $route = SingleRoute::get('/^index$/', 'App\Http\Controllers\IndexController');
+        $route = SingleRoute::get('#^index$#', 'App\Http\Controllers\IndexController');
         $resolvedRoute = $route->match(Request::METHOD_GET, 'index');
         static::assertNotNull($resolvedRoute);
         static::assertEmpty($resolvedRoute->args);
@@ -43,28 +43,28 @@ class SingleRouteTest extends TestCase
 
     public function testSingleRouteMethodMisMatch(): void
     {
-        $route = SingleRoute::get('/^index$/', 'App\Http\Controllers\IndexController');
+        $route = SingleRoute::get('#^index$#', 'App\Http\Controllers\IndexController');
         $resolvedRoute = $route->match(Request::METHOD_POST, 'index');
         static::assertNull($resolvedRoute);
     }
 
     public function testSingleRoutePathMisMatch(): void
     {
-        $route = SingleRoute::get('/^index$/', 'App\Http\Controllers\IndexController');
+        $route = SingleRoute::get('#^index$#', 'App\Http\Controllers\IndexController');
         $resolvedRoute = $route->match(Request::METHOD_GET, 'home');
         static::assertNull($resolvedRoute);
     }
 
     public function testSimpleRouteMisMatch(): void
     {
-        $route = SingleRoute::get('/^index$/', 'App\Http\Controllers\IndexController');
+        $route = SingleRoute::get('#^index$#', 'App\Http\Controllers\IndexController');
         $resolvedRoute = $route->match(Request::METHOD_POST, 'index');
         static::assertNull($resolvedRoute);
     }
 
     public function testVariableRouteMatch(): void
     {
-        $route = SingleRoute::post('/^user\/(?P<userId>\d+)$/', 'App\Http\Controllers\UserController');
+        $route = SingleRoute::post('#^user/(?P<userId>\d+)$#', 'App\Http\Controllers\UserController');
         $resolvedRoute = $route->match(Request::METHOD_POST, 'user/124');
         static::assertNotNull($resolvedRoute);
         static::assertArrayHasKey('userId', $resolvedRoute->args);

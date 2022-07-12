@@ -2,6 +2,8 @@
 
 namespace Ennodia;
 
+use Psr\Container\ContainerInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use function call_user_func_array;
@@ -14,9 +16,9 @@ class Router
 {
     /** @param array<string, mixed> $config */
     public function __construct(
-        private readonly \Closure        $controllerFactory,
-        private readonly RouteCollection $routes,
-        private readonly array           $config = [],
+        private readonly ContainerInterface $container,
+        private readonly RouteCollection    $routes,
+        private readonly array              $config = [],
     )
     {
     }
@@ -51,14 +53,18 @@ class Router
     private function callController(string $controller, Request $request, array $urlParams): Response
     {
         $method = strtolower($request->getMethod());
-        $controllerInstance = $this->makeController($controller, $request);
+        $controllerInstance = $this->makeController($controller);
         return method_exists($controllerInstance, $method)
             ? call_user_func_array([$controllerInstance, $method], $urlParams)
             : call_user_func_array($controllerInstance, $urlParams);
     }
 
-    private function makeController(string $controller, Request $request): mixed
+    private function makeController(string $controller): mixed
     {
-        return ($this->controllerFactory)($controller, [$request]);
+        try {
+            return $this->container->get($controller);
+        } catch (NotFoundExceptionInterface $exception) {
+            throw ControllerNotFoundException::make($controller, $exception);
+        }
     }
 }

@@ -19,7 +19,7 @@ class RouteCollectionTest extends TestCase
     public function testResourceCollection(): void
     {
         $collection = RouteCollection::resource(
-            '/^index$/',
+            '#^index$#',
             'App\Http\Controllers\IndexController'
         );
         static::assertCount(4, $collection->routes);
@@ -36,8 +36,8 @@ class RouteCollectionTest extends TestCase
     public function testCollection(): void
     {
         $collection = RouteCollection::collect([
-            SingleRoute::get('/^index$/', 'App\Http\Controllers\GetController'),
-            SingleRoute::post('/^index$/', 'App\Http\Controllers\PostController')
+            SingleRoute::get('#^index$#', 'App\Http\Controllers\GetController'),
+            SingleRoute::post('#^index$#', 'App\Http\Controllers\PostController')
         ]);
         static::assertCount(2, $collection->routes);
 
