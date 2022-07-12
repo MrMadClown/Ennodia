@@ -9,6 +9,7 @@
 
 namespace Tests;
 
+use Ennodia\ControllerNotFoundException;
 use Ennodia\RouteCollection;
 use Ennodia\RouteNotFoundException;
 use Ennodia\Router;
@@ -54,6 +55,7 @@ class RouterTest extends TestCase
                 return false;
             }
         }, new RouteCollection([SingleRoute::get('#^(?P<user>[a-z]+)/(?P<repository>[a-z]+)$#i', 'App\Http\Controllers\IndexController')]));
+        static::expectException(ControllerNotFoundException::class);
         static::expectErrorMessage('App\Http\Controllers\IndexController');
         $router(Request::create('https://github.com/MrMadClown/ennodia/', Request::METHOD_GET));
     }
