@@ -4,3 +4,4 @@
 vendor
 coverage
 composer.phar
+.infection-cache/

@@ -39,4 +39,15 @@ class RouteCollectionTest extends TestCase
         static::assertNotNull($resolvedPostRoute = $collection->match(Request::METHOD_POST, 'index'));
         static::assertEquals('App\Http\Controllers\PostController', $resolvedPostRoute->controller);
     }
+
+    public function testMake(): void
+    {
+        $collection = RouteCollection::make([Request::METHOD_GET, Request::METHOD_HEAD], '#^index$#', 'App\Http\Controllers\GetController');
+        static::assertCount(2, $collection->routes);
+
+        static::assertNotNull($resolvedGetRoute = $collection->match(Request::METHOD_GET, 'index'));
+        static::assertEquals('App\Http\Controllers\GetController', $resolvedGetRoute->controller);
+        static::assertNotNull($resolvedPostRoute = $collection->match(Request::METHOD_HEAD, 'index'));
+        static::assertEquals('App\Http\Controllers\GetController', $resolvedPostRoute->controller);
+    }
 }

@@ -15,13 +15,82 @@ use Symfony\Component\HttpFoundation\Response;
 
 class RouterTest extends TestCase
 {
+    public function testIndexPath(): void
+    {
+        $router = new Router(
+            new class ($this) implements ContainerInterface {
+                public function __construct(private readonly TestCase $testCase)
+                {
+                }
+
+                public function get(string $id)
+                {
+                    $this->testCase->assertEquals('App\Http\Controllers\IndexController', $id);
+                    return new class () {
+                        public function __invoke(): Response
+                        {
+                            return new Response('This is a Response');
+                        }
+                    };
+                }
+
+                public function has(string $id): bool
+                {
+                    return false;
+                }
+            },
+            new RouteCollection([
+                SingleRoute::get(
+                    '#^index$#i',
+                    'App\Http\Controllers\IndexController'
+                )
+            ])
+        );
+        $response = $router(Request::create('https://github.com/', Request::METHOD_GET));
+        static::assertEquals('This is a Response', $response->getContent());
+    }
+
+    public function testFallbackPath(): void
+    {
+        $router = new Router(
+            new class ($this) implements ContainerInterface {
+                public function __construct(private readonly TestCase $testCase)
+                {
+                }
+
+                public function get(string $id)
+                {
+                    $this->testCase->assertEquals('App\Http\Controllers\FallbackController', $id);
+                    return new class () {
+                        public function __invoke(): Response
+                        {
+                            return new Response('This is a Response');
+                        }
+                    };
+                }
+
+                public function has(string $id): bool
+                {
+                    return false;
+                }
+            },
+            new RouteCollection([
+                SingleRoute::get(
+                    '#^fallback#i',
+                    'App\Http\Controllers\FallbackController'
+                )
+            ]),
+            ['fallbackPath' => 'fallback']
+        );
+        $response = $router(Request::create('https://github.com/', Request::METHOD_GET));
+        static::assertEquals('This is a Response', $response->getContent());
+    }
+
     public function testRouteNotFound(): void
     {
         $router = new Router(new class implements ContainerInterface {
             public function get(string $id)
             {
-                throw new class extends \LogicException implements NotFoundExceptionInterface {
-                };
             }
 
             public function has(string $id): bool

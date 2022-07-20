@@ -9,7 +9,6 @@ use Symfony\Component\HttpFoundation\Response;
 use function call_user_func_array;
 use function method_exists;
 use function str_ends_with;
-use function strtolower;
 use function substr;
 
 class Router
@@ -52,7 +51,7 @@ class Router
     /** @param array<string, mixed> $urlParams */
     private function callController(string $controller, Request $request, array $urlParams): Response
     {
-        $method = strtolower($request->getMethod());
+        $method = $request->getMethod();
         $controllerInstance = $this->makeController($controller);
         return method_exists($controllerInstance, $method)
             ? call_user_func_array([$controllerInstance, $method], $urlParams)
