@@ -10,6 +10,7 @@ The Router gets constructed by passing an Implementation of `Psr\Container\Conta
 use Ennodia\RouteCollection;
 use Ennodia\SingleRoute;
 use Ennodia\Router;
+use Ennodia\Middleware;
 use Ennodia\RouteCollection;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -20,8 +21,8 @@ $routes = RouteCollection::collect([
     SingleRoute::get('#^index$#', IndexController::class),
 ]);
 $request = Request::createFromGlobals();
-$router = new Router(new Container(), $routes);
-$response = $router($request);
+$router = new Router(new Container(), $routes, new Middleware([]));
+$response = $router->handle($request);
 ```
 
 A Controller either implements ``__invoke`` or ``get, post, put, patch, delete, etc..``
