@@ -3,6 +3,7 @@
 namespace Tests;
 
 use Ennodia\ControllerNotFoundException;
+use Ennodia\Middleware;
 use Ennodia\RequestMethod;
 use Ennodia\RouteCollection;
 use Ennodia\RouteNotFoundException;
@@ -13,40 +14,33 @@ use GuzzleHttp\Psr7\ServerRequest;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
-use Psr\Http\Message\ResponseInterface;
 
 class RouterTest extends TestCase
 {
     public function testIndexPath(): void
     {
+        $controller = $this->getMockBuilder(\stdClass::class)
+            ->addMethods(['__invoke'])
+            ->getMock();
+        $controller->expects(static::once())
+            ->method('__invoke')
+            ->willReturn(new Response(200, [], 'This is a Response'));
+
+        $container = $this->getMockBuilder(ContainerInterface::class)->getMock();
+        $container->expects(static::once())
+            ->method('get')
+            ->with('App\Http\Controllers\IndexController')
+            ->willReturn($controller);
+
         $router = new Router(
-            new class ($this) implements ContainerInterface {
-                public function __construct(private readonly TestCase $testCase)
-                {
-                }
-
-                public function get(string $id)
-                {
-                    $this->testCase->assertEquals('App\Http\Controllers\IndexController', $id);
-                    return new class () {
-                        public function __invoke(): ResponseInterface
-                        {
-                            return new Response(200, [], 'This is a Response');
-                        }
-                    };
-                }
-
-                public function has(string $id): bool
-                {
-                    return false;
-                }
-            },
+            $container,
             new RouteCollection([
                 SingleRoute::get(
                     '#^index$#i',
                     'App\Http\Controllers\IndexController'
                 )
-            ])
+            ]),
+            new Middleware([])
         );
         $response = $router->handle(new ServerRequest(RequestMethod::GET->value, 'https://github.com/'));
         static::assertEquals('This is a Response', $response->getBody()->getContents());
@@ -54,34 +48,28 @@ class RouterTest extends TestCase
 
     public function testFallbackPath(): void
     {
+        $controller = $this->getMockBuilder(\stdClass::class)
+            ->addMethods(['__invoke'])
+            ->getMock();
+        $controller->expects(static::once())
+            ->method('__invoke')
+            ->willReturn(new Response(200, [], 'This is a Response'));
+
+        $container = $this->getMockBuilder(ContainerInterface::class)->getMock();
+        $container->expects(static::once())
+            ->method('get')
+            ->with('App\Http\Controllers\FallbackController')
+            ->willReturn($controller);
+
         $router = new Router(
-            new class ($this) implements ContainerInterface {
-                public function __construct(private readonly TestCase $testCase)
-                {
-                }
-
-                public function get(string $id)
-                {
-                    $this->testCase->assertEquals('App\Http\Controllers\FallbackController', $id);
-                    return new class () {
-                        public function __invoke(): ResponseInterface
-                        {
-                            return new Response(200, [], 'This is a Response');
-                        }
-                    };
-                }
-
-                public function has(string $id): bool
-                {
-                    return false;
-                }
-            },
+            $container,
             new RouteCollection([
                 SingleRoute::get(
                     '#^fallback#i',
                     'App\Http\Controllers\FallbackController'
                 )
             ]),
+            new Middleware([]),
             ['fallbackPath' => 'fallback']
         );
         $response = $router->handle(new ServerRequest(RequestMethod::GET->value, 'https://github.com/'));
@@ -90,16 +78,10 @@ class RouterTest extends TestCase
 
     public function testRouteNotFound(): void
     {
-        $router = new Router(new class implements ContainerInterface {
-            public function get(string $id)
-            {
-            }
+        $container = $this->getMockBuilder(ContainerInterface::class)->getMock();
+        $container->expects(static::never())->method('get');
 
-            public function has(string $id): bool
-            {
-                return false;
-            }
-        }, new RouteCollection([]));
+        $router = new Router($container, new RouteCollection([]), new Middleware([]));
 
         static::expectException(RouteNotFoundException::class);
         $router->handle(ServerRequest::fromGlobals());
@@ -107,18 +89,18 @@ class RouterTest extends TestCase
 
     public function testUrlPathStripping(): void
     {
-        $router = new Router(new class implements ContainerInterface {
-            public function get(string $id)
-            {
-                throw new class extends \LogicException implements NotFoundExceptionInterface {
-                };
-            }
+        $container = $this->getMockBuilder(ContainerInterface::class)->getMock();
+        $container->expects(static::once())
+            ->method('get')
+            ->with('App\Http\Controllers\IndexController')
+            ->willThrowException(new class extends \LogicException implements NotFoundExceptionInterface {
+            });
 
-            public function has(string $id): bool
-            {
-                return false;
-            }
-        }, new RouteCollection([SingleRoute::get('#^(?P<user>[a-z]+)/(?P<repository>[a-z]+)$#i', 'App\Http\Controllers\IndexController')]));
+        $router = new Router(
+            $container,
+            new RouteCollection([SingleRoute::get('#^(?P<user>[a-z]+)/(?P<repository>[a-z]+)$#i', 'App\Http\Controllers\IndexController')]),
+            new Middleware([])
+        );
         static::expectException(ControllerNotFoundException::class);
         static::expectErrorMessage('App\Http\Controllers\IndexController');
         $router->handle(new ServerRequest(RequestMethod::GET->value, 'https://github.com/MrMadClown/ennodia/'));
@@ -126,40 +108,34 @@ class RouterTest extends TestCase
 
     public function testCallInvokableController(): void
     {
+        $controller = new class ($this) {
+            public function __construct(private readonly TestCase $testCase)
+            {
+            }
+
+            public function __invoke(string $user, string $repository): Response
+            {
+                $this->testCase->assertEquals('MrMadClown', $user);
+                $this->testCase->assertEquals('ennodia', $repository);
+                return new Response(200, [], 'This is a Response');
+            }
+        };
+
+        $container = $this->getMockBuilder(ContainerInterface::class)->getMock();
+        $container->expects(static::once())
+            ->method('get')
+            ->with('App\Http\Controllers\IndexController')
+            ->willReturn($controller);
+
         $router = new Router(
-            new class ($this) implements ContainerInterface {
-                public function __construct(private readonly TestCase $testCase)
-                {
-                }
-
-                public function get(string $id)
-                {
-                    $this->testCase->assertEquals('App\Http\Controllers\IndexController', $id);
-                    return new class ($this->testCase) {
-                        public function __construct(private readonly TestCase $testCase)
-                        {
-                        }
-
-                        public function __invoke(string $user, string $repository): Response
-                        {
-                            $this->testCase->assertEquals('MrMadClown', $user);
-                            $this->testCase->assertEquals('ennodia', $repository);
-                            return new Response(200, [], 'This is a Response');
-                        }
-                    };
-                }
-
-                public function has(string $id): bool
-                {
-                    return false;
-                }
-            },
+            $container,
             new RouteCollection([
                 SingleRoute::get(
                     '#^(?P<user>[a-z]+)/(?P<repository>[a-z]+)$#i',
                     'App\Http\Controllers\IndexController'
                 )
-            ])
+            ]),
+            new Middleware([])
         );
         $response = $router->handle(new ServerRequest(RequestMethod::GET->value, 'https://github.com/MrMadClown/ennodia/'));
         static::assertEquals('This is a Response', $response->getBody()->getContents());
@@ -167,37 +143,31 @@ class RouterTest extends TestCase
 
     public function testCallControllerMethod(): void
     {
+        $controller = new class ($this) {
+            public function __construct(private readonly TestCase $testCase)
+            {
+            }
+
+            public function get(string $user, string $repository): Response
+            {
+                $this->testCase->assertEquals('MrMadClown', $user);
+                $this->testCase->assertEquals('ennodia', $repository);
+                return new Response(200, [], 'This is a Response');
+            }
+        };
+
+        $container = $this->getMockBuilder(ContainerInterface::class)->getMock();
+        $container->expects(static::once())
+            ->method('get')
+            ->with('App\Http\Controllers\IndexController')
+            ->willReturn($controller);
+
         $router = new Router(
-            new class ($this) implements ContainerInterface {
-                public function __construct(private readonly TestCase $testCase)
-                {
-                }
-
-                public function get(string $id)
-                {
-                    $this->testCase->assertEquals('App\Http\Controllers\IndexController', $id);
-                    return new class ($this->testCase) {
-                        public function __construct(private readonly TestCase $testCase)
-                        {
-                        }
-
-                        public function get(string $user, string $repository): Response
-                        {
-                            $this->testCase->assertEquals('MrMadClown', $user);
-                            $this->testCase->assertEquals('ennodia', $repository);
-                            return new Response(200, [], 'This is a Response');
-                        }
-                    };
-                }
-
-                public function has(string $id): bool
-                {
-                    return false;
-                }
-            },
+            $container,
             new RouteCollection([
                 SingleRoute::get('#^(?P<user>[a-z]+)/(?P<repository>[a-z]+)$#i', 'App\Http\Controllers\IndexController')
-            ])
+            ]),
+            new Middleware([])
         );
 
         $response = $router->handle(new ServerRequest(RequestMethod::GET->value, 'https://github.com/MrMadClown/ennodia/'));

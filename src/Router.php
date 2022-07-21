@@ -7,8 +7,6 @@ use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use function call_user_func_array;
-use function method_exists;
 use function str_ends_with;
 use function substr;
 
@@ -18,6 +16,7 @@ class Router implements RequestHandlerInterface
     public function __construct(
         private readonly ContainerInterface $container,
         private readonly RouteCollection    $routes,
+        private readonly Middleware         $middleware = new Middleware([]),
         private readonly array              $config = [],
     )
     {
@@ -53,11 +52,14 @@ class Router implements RequestHandlerInterface
     /** @param array<string, mixed> $urlParams */
     private function callController(string $controller, ServerRequestInterface $request, array $urlParams): ResponseInterface
     {
-        $method = $request->getMethod();
-        $controllerInstance = $this->makeController($controller);
-        return method_exists($controllerInstance, $method)
-            ? call_user_func_array([$controllerInstance, $method], $urlParams)
-            : call_user_func_array($controllerInstance, $urlParams);
+        return $this->middleware->process(
+            $request,
+            new CallControllerRequestHandler(
+                $this->makeController($controller),
+                RequestMethod::from($request->getMethod()),
+                $urlParams
+            )
+        );
     }
 
     private function makeController(string $controller): mixed
