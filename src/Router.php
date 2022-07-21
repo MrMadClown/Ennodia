@@ -4,14 +4,15 @@ namespace Ennodia;
 
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use function call_user_func_array;
 use function method_exists;
 use function str_ends_with;
 use function substr;
 
-class Router
+class Router implements RequestHandlerInterface
 {
     /** @param array<string, mixed> $config */
     public function __construct(
@@ -22,24 +23,25 @@ class Router
     {
     }
 
-    public function __invoke(Request $request): Response
+    public function handle(ServerRequestInterface $request): ResponseInterface
     {
+        $requestMethod = RequestMethod::from($request->getMethod());
         $urlPath = $this->getUrlPathFromRequest($request);
-        $route = $this->routes->match($request->getMethod(), $urlPath);
+        $route = $this->routes->match($requestMethod, $urlPath);
 
         if (!$route) {
-            throw RouteNotFoundException::make($request->getMethod(), $urlPath);
+            throw RouteNotFoundException::make($requestMethod, $urlPath);
         } else {
             return $this->callController($route->controller, $request, $route->args);
         }
     }
 
-    protected function getUrlPathFromRequest(Request $request): string
+    private function getUrlPathFromRequest(ServerRequestInterface $request): string
     {
         $urlPath = $this->config['fallbackPath'] ?? 'index';
-
-        if ($request->getPathInfo() !== '/') {
-            $urlPath = substr($request->getPathInfo(), 1);
+        $uri = $request->getUri();
+        if ($uri->getPath() !== '/') {
+            $urlPath = substr($uri->getPath(), 1);
             if (str_ends_with($urlPath, '/')) {
                 $urlPath = substr($urlPath, 0, -1);
             }
@@ -49,7 +51,7 @@ class Router
     }
 
     /** @param array<string, mixed> $urlParams */
-    private function callController(string $controller, Request $request, array $urlParams): Response
+    private function callController(string $controller, ServerRequestInterface $request, array $urlParams): ResponseInterface
     {
         $method = $request->getMethod();
         $controllerInstance = $this->makeController($controller);

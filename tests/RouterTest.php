@@ -3,15 +3,17 @@
 namespace Tests;
 
 use Ennodia\ControllerNotFoundException;
+use Ennodia\RequestMethod;
 use Ennodia\RouteCollection;
 use Ennodia\RouteNotFoundException;
 use Ennodia\Router;
 use Ennodia\SingleRoute;
+use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\Psr7\ServerRequest;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Psr\Http\Message\ResponseInterface;
 
 class RouterTest extends TestCase
 {
@@ -27,9 +29,9 @@ class RouterTest extends TestCase
                 {
                     $this->testCase->assertEquals('App\Http\Controllers\IndexController', $id);
                     return new class () {
-                        public function __invoke(): Response
+                        public function __invoke(): ResponseInterface
                         {
-                            return new Response('This is a Response');
+                            return new Response(200, [], 'This is a Response');
                         }
                     };
                 }
@@ -46,8 +48,8 @@ class RouterTest extends TestCase
                 )
             ])
         );
-        $response = $router(Request::create('https://github.com/', Request::METHOD_GET));
-        static::assertEquals('This is a Response', $response->getContent());
+        $response = $router->handle(new ServerRequest(RequestMethod::GET->value, 'https://github.com/'));
+        static::assertEquals('This is a Response', $response->getBody()->getContents());
     }
 
     public function testFallbackPath(): void
@@ -62,9 +64,9 @@ class RouterTest extends TestCase
                 {
                     $this->testCase->assertEquals('App\Http\Controllers\FallbackController', $id);
                     return new class () {
-                        public function __invoke(): Response
+                        public function __invoke(): ResponseInterface
                         {
-                            return new Response('This is a Response');
+                            return new Response(200, [], 'This is a Response');
                         }
                     };
                 }
@@ -82,8 +84,8 @@ class RouterTest extends TestCase
             ]),
             ['fallbackPath' => 'fallback']
         );
-        $response = $router(Request::create('https://github.com/', Request::METHOD_GET));
-        static::assertEquals('This is a Response', $response->getContent());
+        $response = $router->handle(new ServerRequest(RequestMethod::GET->value, 'https://github.com/'));
+        static::assertEquals('This is a Response', $response->getBody()->getContents());
     }
 
     public function testRouteNotFound(): void
@@ -100,7 +102,7 @@ class RouterTest extends TestCase
         }, new RouteCollection([]));
 
         static::expectException(RouteNotFoundException::class);
-        $router(Request::createFromGlobals());
+        $router->handle(ServerRequest::fromGlobals());
     }
 
     public function testUrlPathStripping(): void
@@ -119,7 +121,7 @@ class RouterTest extends TestCase
         }, new RouteCollection([SingleRoute::get('#^(?P<user>[a-z]+)/(?P<repository>[a-z]+)$#i', 'App\Http\Controllers\IndexController')]));
         static::expectException(ControllerNotFoundException::class);
         static::expectErrorMessage('App\Http\Controllers\IndexController');
-        $router(Request::create('https://github.com/MrMadClown/ennodia/', Request::METHOD_GET));
+        $router->handle(new ServerRequest(RequestMethod::GET->value, 'https://github.com/MrMadClown/ennodia/'));
     }
 
     public function testCallInvokableController(): void
@@ -142,7 +144,7 @@ class RouterTest extends TestCase
                         {
                             $this->testCase->assertEquals('MrMadClown', $user);
                             $this->testCase->assertEquals('ennodia', $repository);
-                            return new Response('This is a Response');
+                            return new Response(200, [], 'This is a Response');
                         }
                     };
                 }
@@ -159,8 +161,8 @@ class RouterTest extends TestCase
                 )
             ])
         );
-        $response = $router(Request::create('https://github.com/MrMadClown/ennodia/', Request::METHOD_GET));
-        static::assertEquals('This is a Response', $response->getContent());
+        $response = $router->handle(new ServerRequest(RequestMethod::GET->value, 'https://github.com/MrMadClown/ennodia/'));
+        static::assertEquals('This is a Response', $response->getBody()->getContents());
     }
 
     public function testCallControllerMethod(): void
@@ -183,7 +185,7 @@ class RouterTest extends TestCase
                         {
                             $this->testCase->assertEquals('MrMadClown', $user);
                             $this->testCase->assertEquals('ennodia', $repository);
-                            return new Response('This is a Response');
+                            return new Response(200, [], 'This is a Response');
                         }
                     };
                 }
@@ -198,7 +200,7 @@ class RouterTest extends TestCase
             ])
         );
 
-        $response = $router(Request::create('https://github.com/MrMadClown/ennodia/', Request::METHOD_GET));
-        static::assertEquals('This is a Response', $response->getContent());
+        $response = $router->handle(new ServerRequest(RequestMethod::GET->value, 'https://github.com/MrMadClown/ennodia/'));
+        static::assertEquals('This is a Response', $response->getBody()->getContents());
     }
 }

@@ -4,5 +4,5 @@ namespace Ennodia;
 
 interface Route
 {
-    public function match(string $method, string $urlPath): ?ResolvedRoute;
+    public function match(RequestMethod $method, string $urlPath): ?ResolvedRoute;
 }

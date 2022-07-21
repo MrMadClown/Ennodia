@@ -2,7 +2,6 @@
 
 namespace Ennodia;
 
-use Symfony\Component\HttpFoundation\Request;
 use function array_map;
 
 class RouteCollection implements Route
@@ -23,23 +22,25 @@ class RouteCollection implements Route
     {
         return new RouteCollection(
             array_map(
-                static fn(string $method): SingleRoute => new SingleRoute($pattern, $controller, $method),
+                static fn(RequestMethod $method): SingleRoute => new SingleRoute($pattern, $controller, $method),
                 $methods
             )
         );
     }
 
-    public static function resource(string $pattern, string $controller): RouteCollection
+    public static function resource(string $path, string $resourceIdentifierPattern, string $controller): RouteCollection
     {
-        return static::make([
-            Request::METHOD_GET,
-            Request::METHOD_POST,
-            Request::METHOD_PUT,
-            Request::METHOD_DELETE
-        ], $pattern, $controller);
+        return static::collect([
+            new SingleRoute(sprintf('#^%s$#', $path), $controller, RequestMethod::GET),
+            new SingleRoute(sprintf('#^%s$#', $path), $controller, RequestMethod::POST),
+
+            new SingleRoute(sprintf('#^%s/%s$#', $path, $resourceIdentifierPattern), $controller, RequestMethod::GET),
+            new SingleRoute(sprintf('#^%s/%s$#', $path, $resourceIdentifierPattern), $controller, RequestMethod::PUT),
+            new SingleRoute(sprintf('#^%s/%s$#', $path, $resourceIdentifierPattern), $controller, RequestMethod::DELETE)
+        ]);
     }
 
-    public function match(string $method, string $urlPath): ?ResolvedRoute
+    public function match(RequestMethod $method, string $urlPath): ?ResolvedRoute
     {
         foreach ($this->routes as $route) {
             if ($resolvedRoute = $route->match($method, $urlPath)) return $resolvedRoute;
