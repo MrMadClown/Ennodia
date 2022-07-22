@@ -20,7 +20,8 @@
         "sort-packages": true,
         "optimize-autoloader": true,
         "allow-plugins": {
-            "infection/extension": false
+            "infection/extension": false,
+            "infection/extension-installer": false
         }
     },
     "autoload": {
