@@ -34,4 +34,4 @@ jobs:
       - name: Run test suite
         run: php vendor/bin/phpunit --configuration phpunit.xml --coverage-xml=coverage/coverage-xml --log-junit=coverage/junit.xml
       - name: Run test suite
-        run: php vendor/bin/infection --configuration phpunit.xml --coverage=coverage --min-msi=90 --min-covered-msi=90
+        run: php vendor/bin/infection --coverage=coverage --min-msi=90 --min-covered-msi=90
