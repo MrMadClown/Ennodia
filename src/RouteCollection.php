@@ -3,6 +3,7 @@
 namespace Ennodia;
 
 use function array_map;
+use function sprintf;
 
 class RouteCollection implements Route
 {

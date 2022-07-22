@@ -5,6 +5,7 @@ namespace Ennodia;
 use function array_filter;
 use function is_numeric;
 use function preg_match;
+use function strtoupper;
 
 class SingleRoute implements Route
 {

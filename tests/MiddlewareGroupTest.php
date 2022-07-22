@@ -3,7 +3,7 @@
 namespace Tests;
 
 use Ennodia\CallableRequestHandler;
-use Ennodia\Middleware;
+use Ennodia\MiddlewareGroup;
 use Ennodia\RequestMethod;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\ServerRequest;
@@ -13,11 +13,11 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
-class MiddleWareTest extends TestCase
+class MiddlewareGroupTest extends TestCase
 {
     public function testProcess()
     {
-        $middleWare = new Middleware([new class implements MiddlewareInterface {
+        $middleWare = new MiddlewareGroup([new class implements MiddlewareInterface {
             public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
             {
                 return new Response(401, [], 'Not Allowed');

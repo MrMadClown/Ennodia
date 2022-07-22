@@ -7,8 +7,7 @@ use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use function str_ends_with;
-use function substr;
+use function trim;
 
 class Router implements RequestHandlerInterface
 {
@@ -16,7 +15,7 @@ class Router implements RequestHandlerInterface
     public function __construct(
         private readonly ContainerInterface $container,
         private readonly RouteCollection    $routes,
-        private readonly Middleware         $middleware = new Middleware([]),
+        private readonly MiddlewareGroup    $middleware = new MiddlewareGroup([]),
         private readonly array              $config = [],
     )
     {
@@ -37,16 +36,13 @@ class Router implements RequestHandlerInterface
 
     private function getUrlPathFromRequest(ServerRequestInterface $request): string
     {
-        $urlPath = $this->config['fallbackPath'] ?? 'index';
         $uri = $request->getUri();
+
         if ($uri->getPath() !== '/') {
-            $urlPath = substr($uri->getPath(), 1);
-            if (str_ends_with($urlPath, '/')) {
-                $urlPath = substr($urlPath, 0, -1);
-            }
+            return trim($uri->getPath(), '/');
         }
 
-        return $urlPath;
+        return $this->config['fallbackPath'] ?? 'index';
     }
 
     /** @param array<string, mixed> $urlParams */

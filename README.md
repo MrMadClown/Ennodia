@@ -10,7 +10,7 @@ The Router gets constructed by passing an Implementation of `Psr\Container\Conta
 use Ennodia\RouteCollection;
 use Ennodia\SingleRoute;
 use Ennodia\Router;
-use Ennodia\Middleware;
+use Ennodia\MiddlewareGroup;
 use Ennodia\RouteCollection;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -21,7 +21,7 @@ $routes = RouteCollection::collect([
     SingleRoute::get('#^index$#', IndexController::class),
 ]);
 $request = Request::createFromGlobals();
-$router = new Router(new Container(), $routes, new Middleware([]));
+$router = new Router(new Container(), $routes, new MiddlewareGroup([]));
 $response = $router->handle($request);
 ```
 

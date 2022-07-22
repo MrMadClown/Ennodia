@@ -3,7 +3,7 @@
 namespace Tests;
 
 use Ennodia\ControllerNotFoundException;
-use Ennodia\Middleware;
+use Ennodia\MiddlewareGroup;
 use Ennodia\RequestMethod;
 use Ennodia\RouteCollection;
 use Ennodia\RouteNotFoundException;
@@ -40,7 +40,7 @@ class RouterTest extends TestCase
                     'App\Http\Controllers\IndexController'
                 )
             ]),
-            new Middleware([])
+            new MiddlewareGroup([])
         );
         $response = $router->handle(new ServerRequest(RequestMethod::GET->value, 'https://github.com/'));
         static::assertEquals('This is a Response', $response->getBody()->getContents());
@@ -69,7 +69,7 @@ class RouterTest extends TestCase
                     'App\Http\Controllers\FallbackController'
                 )
             ]),
-            new Middleware([]),
+            new MiddlewareGroup([]),
             ['fallbackPath' => 'fallback']
         );
         $response = $router->handle(new ServerRequest(RequestMethod::GET->value, 'https://github.com/'));
@@ -81,7 +81,7 @@ class RouterTest extends TestCase
         $container = $this->getMockBuilder(ContainerInterface::class)->getMock();
         $container->expects(static::never())->method('get');
 
-        $router = new Router($container, new RouteCollection([]), new Middleware([]));
+        $router = new Router($container, new RouteCollection([]), new MiddlewareGroup([]));
 
         static::expectException(RouteNotFoundException::class);
         $router->handle(ServerRequest::fromGlobals());
@@ -99,7 +99,7 @@ class RouterTest extends TestCase
         $router = new Router(
             $container,
             new RouteCollection([SingleRoute::get('#^(?P<user>[a-z]+)/(?P<repository>[a-z]+)$#i', 'App\Http\Controllers\IndexController')]),
-            new Middleware([])
+            new MiddlewareGroup([])
         );
         static::expectException(ControllerNotFoundException::class);
         static::expectErrorMessage('App\Http\Controllers\IndexController');
@@ -135,7 +135,7 @@ class RouterTest extends TestCase
                     'App\Http\Controllers\IndexController'
                 )
             ]),
-            new Middleware([])
+            new MiddlewareGroup([])
         );
         $response = $router->handle(new ServerRequest(RequestMethod::GET->value, 'https://github.com/MrMadClown/ennodia/'));
         static::assertEquals('This is a Response', $response->getBody()->getContents());
@@ -167,7 +167,7 @@ class RouterTest extends TestCase
             new RouteCollection([
                 SingleRoute::get('#^(?P<user>[a-z]+)/(?P<repository>[a-z]+)$#i', 'App\Http\Controllers\IndexController')
             ]),
-            new Middleware([])
+            new MiddlewareGroup([])
         );
 
         $response = $router->handle(new ServerRequest(RequestMethod::GET->value, 'https://github.com/MrMadClown/ennodia/'));
