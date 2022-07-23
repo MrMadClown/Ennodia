@@ -9,6 +9,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class MiddlewareGroup implements MiddlewareInterface
 {
+    /** @param array<MiddlewareInterface> $middlewares */
     public function __construct(private readonly array $middlewares)
     {
     }

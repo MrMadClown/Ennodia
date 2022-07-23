@@ -10,6 +10,7 @@ use function method_exists;
 
 class CallControllerRequestHandler implements RequestHandlerInterface
 {
+    /** @param array<string, mixed> $urlParams */
     public function __construct(
         private readonly object        $controllerInstance,
         private readonly RequestMethod $method,

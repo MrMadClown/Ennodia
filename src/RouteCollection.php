@@ -18,7 +18,7 @@ class RouteCollection implements Route
         return new RouteCollection($routes);
     }
 
-    /** @param array<string> $methods */
+    /** @param array<RequestMethod> $methods */
     public static function make(array $methods, string $pattern, string $controller): RouteCollection
     {
         return new RouteCollection(
