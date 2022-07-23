@@ -28,10 +28,16 @@ jobs:
           key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
           restore-keys: |
             ${{ runner.os }}-php-
+      - name: Cache Coverage result
+        id: coverage-cache
+        uses: actions/cache@v3
+        with:
+          path: coverage
+          key: ${{ github.GITHUB_SHA }}
 
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress
       - name: Run test suite
         run: php vendor/bin/phpunit --configuration phpunit.xml --coverage-xml=coverage/coverage-xml --log-junit=coverage/junit.xml
-      - name: Run test suite
+      - name: Run infected test suite
         run: php vendor/bin/infection --coverage=coverage --min-msi=90 --min-covered-msi=90
