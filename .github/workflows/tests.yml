@@ -33,7 +33,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: coverage
-          key: ${{ github.GITHUB_SHA }}
+          key: ${{ github.sha }}
 
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress
