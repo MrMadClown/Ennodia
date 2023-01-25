@@ -1,8 +1,16 @@
 # Ennodia - a PHP Router
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
+[![Latest Stable Version](https://poser.pugx.org/mrmadclown/ennodia/v/stable.svg)](https://packagist.org/packages/mrmadclown/ennodia)
+[![Total Downloads](https://poser.pugx.org/mrmadclown/ennodia/downloads)](https://packagist.org/packages/mrmadclown/ennodia)
 
 This is a pretty straight forward Router, a Route consists of a regular expression, a qualified Controller path and optionally a HTTP Method.
 
-The Router gets constructed by passing an Implementation of `Psr\Container\ContainerInterface::class` and a `Ennodia\RouteCollection::class`. 
+### Installation
+```bash
+composer require mrmadclown/ennodia
+```
+
+The Router gets constructed by passing an Implementation of `Psr\Container\ContainerInterface::class` and a `Ennodia\RouteCollection::class`.
 
 ### Usage
 
