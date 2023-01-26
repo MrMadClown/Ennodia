@@ -1,6 +1,6 @@
 <?php
 
-namespace Ennodia;
+namespace MrMadClown\Ennodia;
 
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -16,8 +16,11 @@ class LazyMiddleware implements MiddlewareInterface
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        return $this->container
-            ->get($this->middleware)
-            ->process($request, $handler);
+        return $this->resolveMiddleWare()->process($request, $handler);
+    }
+
+    protected function resolveMiddleWare(): MiddlewareInterface
+    {
+        return $this->container->get($this->middleware);
     }
 }

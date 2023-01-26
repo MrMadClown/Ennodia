@@ -1,10 +1,10 @@
 <?php
 
-namespace Tests;
+namespace MrMadClown\Ennodia\Tests;
 
-use Ennodia\RequestMethod;
-use Ennodia\RouteCollection;
-use Ennodia\SingleRoute;
+use MrMadClown\Ennodia\RequestMethod;
+use MrMadClown\Ennodia\RouteCollection;
+use MrMadClown\Ennodia\SingleRoute;
 use PHPUnit\Framework\TestCase;
 
 class RouteCollectionTest extends TestCase

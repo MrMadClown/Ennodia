@@ -1,14 +1,15 @@
 <?php
 
-namespace Tests;
+namespace MrMadClown\Ennodia\Tests;
 
-use Ennodia\ControllerNotFoundException;
-use Ennodia\MiddlewareGroup;
-use Ennodia\RequestMethod;
-use Ennodia\RouteCollection;
-use Ennodia\RouteNotFoundException;
-use Ennodia\Router;
-use Ennodia\SingleRoute;
+use MrMadClown\Ennodia\ControllerMethodNotFoundException;
+use MrMadClown\Ennodia\ControllerNotFoundException;
+use MrMadClown\Ennodia\MiddlewareGroup;
+use MrMadClown\Ennodia\RequestMethod;
+use MrMadClown\Ennodia\RouteCollection;
+use MrMadClown\Ennodia\RouteNotFoundException;
+use MrMadClown\Ennodia\Router;
+use MrMadClown\Ennodia\SingleRoute;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\ServerRequest;
 use PHPUnit\Framework\TestCase;
@@ -172,5 +173,27 @@ class RouterTest extends TestCase
 
         $response = $router->handle(new ServerRequest(RequestMethod::GET->value, 'https://github.com/MrMadClown/ennodia/'));
         static::assertEquals('This is a Response', $response->getBody()->getContents());
+    }
+
+    public function testControllerMethodNotFound(): void
+    {
+        $controller = new \stdClass();
+
+        $container = $this->getMockBuilder(ContainerInterface::class)->getMock();
+        $container->expects(static::once())
+            ->method('get')
+            ->with('App\Http\Controllers\IndexController')
+            ->willReturn($controller);
+
+        $router = new Router(
+            $container,
+            new RouteCollection([
+                SingleRoute::get('#^(?P<user>[a-z]+)/(?P<repository>[a-z]+)$#i', 'App\Http\Controllers\IndexController')
+            ]),
+            new MiddlewareGroup([])
+        );
+
+        static::expectException(ControllerMethodNotFoundException::class);
+        $router->handle(new ServerRequest(RequestMethod::GET->value, 'https://github.com/MrMadClown/ennodia/'));
     }
 }

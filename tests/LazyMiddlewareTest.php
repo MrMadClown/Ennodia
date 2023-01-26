@@ -1,8 +1,8 @@
 <?php
 
-namespace Tests;
+namespace MrMadClown\Ennodia\Tests;
 
-use Ennodia\LazyMiddleware;
+use MrMadClown\Ennodia\LazyMiddleware;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\ServerRequest;
 use PHPUnit\Framework\TestCase;

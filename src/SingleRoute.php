@@ -1,6 +1,6 @@
 <?php
 
-namespace Ennodia;
+namespace MrMadClown\Ennodia;
 
 use function array_filter;
 use function is_numeric;

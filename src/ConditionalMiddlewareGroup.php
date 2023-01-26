@@ -1,6 +1,6 @@
 <?php
 
-namespace Ennodia;
+namespace MrMadClown\Ennodia;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -21,7 +21,7 @@ class ConditionalMiddlewareGroup extends MiddlewareGroup
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        if ($this->method === null || $this->method->value === RequestMethod::tryFrom($request->getMethod())->value) {
+        if ($this->method === null || $this->method === RequestMethod::tryFrom($request->getMethod())) {
             if ($this->pattern === null || preg_match($this->pattern, trim($request->getUri()->getPath(), '/'))) {
                 return parent::process($request, $handler);
             }

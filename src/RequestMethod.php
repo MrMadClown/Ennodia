@@ -1,6 +1,6 @@
 <?php
 
-namespace Ennodia;
+namespace MrMadClown\Ennodia;
 
 enum RequestMethod: string
 {

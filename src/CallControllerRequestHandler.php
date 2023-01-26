@@ -1,6 +1,6 @@
 <?php
 
-namespace Ennodia;
+namespace MrMadClown\Ennodia;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -21,8 +21,12 @@ class CallControllerRequestHandler implements RequestHandlerInterface
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        return method_exists($this->controllerInstance, $this->method->value)
-            ? call_user_func_array([$this->controllerInstance, $this->method->value], $this->urlParams)
-            : call_user_func_array($this->controllerInstance, $this->urlParams);
+        if (method_exists($this->controllerInstance, $this->method->value)) {
+            return call_user_func_array($this->controllerInstance->{$this->method->value}(...), $this->urlParams);
+        } else if (method_exists($this->controllerInstance, '__invoke')) {
+            return call_user_func_array(($this->controllerInstance)(...), $this->urlParams);
+        }
+
+        throw ControllerMethodNotFoundException::make($this->method->value,$this->controllerInstance::class);
     }
 }

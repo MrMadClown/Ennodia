@@ -2,6 +2,8 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![Latest Stable Version](https://poser.pugx.org/mrmadclown/ennodia/v/stable.svg)](https://packagist.org/packages/mrmadclown/ennodia)
 [![Total Downloads](https://poser.pugx.org/mrmadclown/ennodia/downloads)](https://packagist.org/packages/mrmadclown/ennodia)
+![example workflow](https://github.com/mrmadclown/ennodia/actions/workflows/tests.yml/badge.svg?event=push)
+![example workflow](https://github.com/mrmadclown/ennodia/actions/workflows/static%20code%20analysis.yml/badge.svg?event=push)
 
 This is a pretty straight forward Router, a Route consists of a regular expression, a qualified Controller path and optionally a HTTP Method.
 
@@ -10,16 +12,16 @@ This is a pretty straight forward Router, a Route consists of a regular expressi
 composer require mrmadclown/ennodia
 ```
 
-The Router gets constructed by passing an Implementation of `Psr\Container\ContainerInterface::class` and a `Ennodia\RouteCollection::class`.
+The Router gets constructed by passing an Implementation of `Psr\Container\ContainerInterface::class` and a `MrMadClown\Ennodia\RouteCollection::class`.
 
 ### Usage
 
 ```php
-use Ennodia\RouteCollection;
-use Ennodia\SingleRoute;
-use Ennodia\Router;
-use Ennodia\MiddlewareGroup;
-use Ennodia\RouteCollection;
+use MrMadClown\Ennodia\RouteCollection;
+use MrMadClown\Ennodia\SingleRoute;
+use MrMadClown\Ennodia\Router;
+use MrMadClown\Ennodia\MiddlewareGroup;
+use MrMadClown\Ennodia\RouteCollection;
 use Symfony\Component\HttpFoundation\Request;
 
 use App\Http\Controllers\IndexController;

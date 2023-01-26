@@ -26,12 +26,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Ennodia\\": "src/"
+            "MrMadClown\\Ennodia\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Tests\\": "tests/"
+            "MrMadClown\\Tests\\": "tests/"
         }
     },
     "minimum-stability": "dev",

@@ -1,10 +1,9 @@
 <?php
 
-namespace Tests;
+namespace MrMadClown\Ennodia\Tests;
 
-use Ennodia\ConditionalMiddlewareGroup;
-use Ennodia\MiddlewareGroup;
-use Ennodia\RequestMethod;
+use MrMadClown\Ennodia\ConditionalMiddlewareGroup;
+use MrMadClown\Ennodia\RequestMethod;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\ServerRequest;
 use PHPUnit\Framework\TestCase;

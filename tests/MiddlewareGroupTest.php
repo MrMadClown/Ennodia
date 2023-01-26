@@ -1,10 +1,10 @@
 <?php
 
-namespace Tests;
+namespace MrMadClown\Ennodia\Tests;
 
-use Ennodia\CallableRequestHandler;
-use Ennodia\MiddlewareGroup;
-use Ennodia\RequestMethod;
+use MrMadClown\Ennodia\CallableRequestHandler;
+use MrMadClown\Ennodia\MiddlewareGroup;
+use MrMadClown\Ennodia\RequestMethod;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\ServerRequest;
 use PHPUnit\Framework\TestCase;

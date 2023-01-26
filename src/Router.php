@@ -1,6 +1,6 @@
 <?php
 
-namespace Ennodia;
+namespace MrMadClown\Ennodia;
 
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -11,7 +11,7 @@ use function trim;
 
 class Router implements RequestHandlerInterface
 {
-    /** @param array<string, mixed> $config */
+    /** @param array{fallbackPath?: string} $config */
     public function __construct(
         private readonly ContainerInterface $container,
         private readonly RouteCollection    $routes,
@@ -58,7 +58,7 @@ class Router implements RequestHandlerInterface
         );
     }
 
-    private function makeController(string $controller): mixed
+    private function makeController(string $controller): object
     {
         try {
             return $this->container->get($controller);
