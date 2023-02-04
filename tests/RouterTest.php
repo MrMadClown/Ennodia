@@ -103,7 +103,7 @@ class RouterTest extends TestCase
             new MiddlewareGroup([])
         );
         static::expectException(ControllerNotFoundException::class);
-        static::expectErrorMessage('App\Http\Controllers\IndexController');
+        static::expectExceptionMessage('App\Http\Controllers\IndexController');
         $router->handle(new ServerRequest(RequestMethod::GET->value, 'https://github.com/MrMadClown/ennodia/'));
     }
 
