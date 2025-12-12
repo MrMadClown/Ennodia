@@ -13,7 +13,7 @@
     "require-dev": {
         "guzzlehttp/psr7": "^2.4.3",
         "infection/infection": "^0.26.18",
-        "phpunit/phpunit": "^12.0.0"
+        "phpunit/phpunit": "^9.6.8"
     },
     "config": {
         "preferred-install": "dist",
